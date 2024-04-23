@@ -1,6 +1,7 @@
 package Service;
 
 import DTO.Data;
+import DTO.RandomPoints;
 import Entities.Indiviual;
 import Entities.Population;
 
@@ -46,7 +47,7 @@ public class Evolutionary {
         return newPopulation;
     }
 
-    private Population crossover(Data data, Population crossPopulation){
+    private void crossover(Population crossPopulation,Data data){
         int i = 0;
         while (i < data.pop() - 2) {
             if(Math.random() <= data.pc()) {
@@ -56,25 +57,13 @@ public class Evolutionary {
             }
             i += 2;
         }
-        return crossPopulation;
     }
 
     private void cross(Indiviual a, Indiviual b, Data data){
+        RandomPoints randomPoints = generateRandomStartStopPoints(data);
 
-        int randomPointFirst = (int) (Math.random() * data.n());
-        int randomPointSec   = (int) (Math.random() * data.n());
-
-        while(randomPointFirst == randomPointSec)
-            randomPointSec   = (int) (Math.random() * data.n());
-
-        if(randomPointFirst > randomPointSec) {
-            int tmp = randomPointSec;
-            randomPointSec = randomPointFirst;
-            randomPointFirst = tmp;
-        }
-
-        List<Integer> mappingSectionA = new ArrayList<>(a.getRepresentIndividual().subList(randomPointFirst,randomPointSec + 1));
-        List<Integer> mappingSectionB = new ArrayList<>(b.getRepresentIndividual().subList(randomPointFirst,randomPointSec + 1));
+        List<Integer> mappingSectionA = new ArrayList<>(a.getRepresentIndividual().subList(randomPoints.randomPointFirst(),randomPoints.randomPointSec() + 1));
+        List<Integer> mappingSectionB = new ArrayList<>(b.getRepresentIndividual().subList(randomPoints.randomPointFirst(),randomPoints.randomPointSec() + 1));
 
         Map<Integer,Integer> mapForA = new HashMap<>();
         Map<Integer,Integer> mapForB = new HashMap<>();
@@ -82,17 +71,15 @@ public class Evolutionary {
             mapForA.put(mappingSectionA.get(i),mappingSectionB.get(i));
             mapForB.put(mappingSectionB.get(i),mappingSectionA.get(i));
         }
+        applyMapping(a, mapForA, randomPoints.randomPointSec() + 1,a.getRepresentIndividual().size());
+        applyMapping(b, mapForB, randomPoints.randomPointSec() + 1,b.getRepresentIndividual().size());
+        applyMapping(a, mapForA, 0,randomPoints.randomPointFirst());
+        applyMapping(b, mapForB, 0,randomPoints.randomPointFirst());
 
-        applyMapping(a, mapForA, randomPointSec + 1,a.getRepresentIndividual().size());
-        applyMapping(b, mapForB, randomPointSec + 1,b.getRepresentIndividual().size());
-        applyMapping(a, mapForA, 0,randomPointFirst);
-        applyMapping(b, mapForB, 0,randomPointSec);
-
-        for(int index = randomPointFirst; index <= randomPointSec;  index++) {
-            a.getRepresentIndividual().set(index,mappingSectionB.get(index - randomPointFirst));
-            b.getRepresentIndividual().set(index,mappingSectionA.get(index - randomPointFirst));
+        for(int index = randomPoints.randomPointFirst(); index <= randomPoints.randomPointSec();  index++) {
+            a.getRepresentIndividual().set(index,mappingSectionB.get(index - randomPoints.randomPointFirst()));
+            b.getRepresentIndividual().set(index,mappingSectionA.get(index - randomPoints.randomPointFirst()));
         }
-
     }
 
     private void applyMapping(Indiviual individual, Map<Integer,Integer> mapping, int startIndex,int endIndex) {
@@ -107,24 +94,57 @@ public class Evolutionary {
         }
     }
 
+    private void mutation(Population population, Data data) {
+        int i = 0;
+        while(i < data.pop()) {
+            if(Math.random() <= data.pm()) {
+                mutate(population.getPopulation().get(i),data);
+                i+= 1;
+            }
+        }
+    }
+
+    private void mutate(Indiviual indiviual,Data data) {
+        RandomPoints randomPoints = generateRandomStartStopPoints(data);
+        int tmp;
+
+        int a = indiviual.getRepresentIndividual().get(randomPoints.randomPointFirst());
+        int b = indiviual.getRepresentIndividual().get(randomPoints.randomPointSec());
+        tmp = a;
+        indiviual.getRepresentIndividual().set(randomPoints.randomPointFirst(),b);
+        indiviual.getRepresentIndividual().set(randomPoints.randomPointSec(),tmp);
+    }
+
+    private RandomPoints generateRandomStartStopPoints(Data data) {
+        int randomPointFirst = (int) (Math.random() * data.n());
+        int randomPointSec   = (int) (Math.random() * data.n());
+
+        while(randomPointFirst == randomPointSec)
+            randomPointSec   = (int) (Math.random() * data.n());
+
+        if(randomPointFirst > randomPointSec) {
+            int tmp = randomPointSec;
+            randomPointSec = randomPointFirst;
+            randomPointFirst = tmp;
+        }
+
+        return new RandomPoints(randomPointFirst,randomPointSec);
+    }
 
     public Indiviual start(Data data) {
         Population population;
-        population = new Population(data);
 
+        population = new Population(data);
         population.evaluatePopulation();
 
         int best = findBestIndividual(population);
-        if(-1 == best) {
-            System.out.println(best);
-        }
 
         int gen = 0;
         while( (gen < data.genMax()) && (population.getPopulation().get(best).evaluate() > data.ffXax()) ) {
             Population newPopulation = selection(population,data);
-            System.out.println(newPopulation);
-            newPopulation = crossover(data,newPopulation);
-////          mutation(data,newPopulation);
+//            System.out.println(newPopulation);
+            crossover(newPopulation,data);
+            mutation(newPopulation,data);
             newPopulation.evaluatePopulation();
             best = findBestIndividual(newPopulation);
             population = newPopulation;

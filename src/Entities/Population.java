@@ -13,6 +13,12 @@ public class Population {
         evaluatedPopulation = new ArrayList<>();
     }
 
+    public Population(Data data) {
+        population = new ArrayList<>();
+        evaluatedPopulation = new ArrayList<>();
+        createPopulation(data);
+    }
+
     public List<Indiviual> getPopulation() {
         return population;
     }
@@ -27,11 +33,10 @@ public class Population {
         return evaluatedPopulation;
     }
 
-    public void evaluate() {
-        for(Indiviual evaluate : population) {
-            evaluatedPopulation.add(evaluate.evaluate());
+    public void evaluatePopulation() {
+        for(Indiviual indiviual : population) {
+            evaluatedPopulation.add(indiviual.evaluate());
         }
-        System.out.println(evaluatedPopulation);
     }
 
     @Override

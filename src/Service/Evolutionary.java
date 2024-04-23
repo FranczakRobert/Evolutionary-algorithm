@@ -4,14 +4,14 @@ import DTO.Data;
 import Entities.Indiviual;
 import Entities.Population;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Evolutionary {
     private int findBestIndividual(Population pop) {
         List<Indiviual> population = pop.getPopulation();
         int best = Integer.MAX_VALUE;
         int bestIndividual = -1;
+
         for (Indiviual indiviual : population) {
             int diagonalAttack = indiviual.evaluate();
             if(best > diagonalAttack) {
@@ -28,10 +28,12 @@ public class Evolutionary {
         List<Indiviual> population = pop.getPopulation();
 
         while(index < data.pop()) {
-            Indiviual a = population.get((int) (Math.random() * (data.n() - 1)));
-            Indiviual b = population.get((int) (Math.random() * (data.n() - 1)));
+            int randoma = (int) (Math.random() * data.n());
+            int randomb = (int) (Math.random() * data.n());
+            Indiviual a = population.get(randoma);
+            Indiviual b = population.get(randomb);
 
-            if(a != b) {
+            if(randoma == randomb) {
                 if(a.evaluate() <= b.evaluate()) {
                     newPopulation.getPopulation().add(a);
                 }
@@ -44,23 +46,19 @@ public class Evolutionary {
         return newPopulation;
     }
 
-    private Population crossover(Data data, Population population){
-        Population crossedPopulation = new Population();
+    private Population crossover(Data data, Population crossPopulation){
         int i = 0;
         while (i < data.pop() - 2) {
             if(Math.random() <= data.pc()) {
-                Indiviual a = population.getPopulation().get(i);
-                Indiviual b = population.getPopulation().get(i + 1);
+                Indiviual a = crossPopulation.getPopulation().get(i);
+                Indiviual b = crossPopulation.getPopulation().get(i + 1);
                 cross(a, b,data);
             }
             i += 2;
         }
-        return crossedPopulation;
+        return crossPopulation;
     }
 
-    /*
-     PMX https://www.baeldung.com/cs/ga-pmx-operator
-    */
     private void cross(Indiviual a, Indiviual b, Data data){
 
         int randomPointFirst = (int) (Math.random() * data.n());
@@ -75,28 +73,63 @@ public class Evolutionary {
             randomPointFirst = tmp;
         }
 
+        List<Integer> mappingSectionA = new ArrayList<>(a.getRepresentIndividual().subList(randomPointFirst,randomPointSec + 1));
+        List<Integer> mappingSectionB = new ArrayList<>(b.getRepresentIndividual().subList(randomPointFirst,randomPointSec + 1));
 
-        // Todo CONFLICT DETECTION!!!!
-        // Selection of Crossover
-        /*In the case of PMX, one starts by randomly selecting two crossing points. These points divide the parents’ chromosomes into three segments: Left, middle, and right segmentation.*/
-        List<Integer> mappingSectionA = new ArrayList<>(a.getRepresentIndividual().subList(randomPointFirst,randomPointSec));
-        List<Integer> mappingSectionB = new ArrayList<>(b.getRepresentIndividual().subList(randomPointFirst,randomPointSec));
+        Map<Integer,Integer> mapForA = new HashMap<>();
+        Map<Integer,Integer> mapForB = new HashMap<>();
+        for (int i = 0; i < mappingSectionA.size(); i++) {
+            mapForA.put(mappingSectionA.get(i),mappingSectionB.get(i));
+            mapForB.put(mappingSectionB.get(i),mappingSectionA.get(i));
+        }
 
-        for(int index = randomPointFirst; index < randomPointSec;  index++) {
+        applyMapping(a, mapForA, randomPointSec + 1,a.getRepresentIndividual().size());
+        applyMapping(b, mapForB, randomPointSec + 1,b.getRepresentIndividual().size());
+        applyMapping(a, mapForA, 0,randomPointFirst);
+        applyMapping(b, mapForB, 0,randomPointSec);
+
+        for(int index = randomPointFirst; index <= randomPointSec;  index++) {
             a.getRepresentIndividual().set(index,mappingSectionB.get(index - randomPointFirst));
             b.getRepresentIndividual().set(index,mappingSectionA.get(index - randomPointFirst));
         }
+
     }
 
-    public void start(Data data) {
-        Population population0 = new Population();
-        population0.createPopulation(data);
-        population0.evaluate();
-        int best = findBestIndividual(population0);
-        int gen = 0;
-        while(gen < data.genMax() & population0.getPopulation().get(best).evaluate() > data.ffXax()) {
-            Population newPopulation = selection(population0,data);
+    private void applyMapping(Indiviual individual, Map<Integer,Integer> mapping, int startIndex,int endIndex) {
+        for (int i = startIndex; i < endIndex; i++) {
+            while (mapping.containsValue(individual.getRepresentIndividual().get(i))) {
+                for (Integer swap : mapping.keySet()) {
+                    if (individual.getRepresentIndividual().get(i) == (int)mapping.get(swap)) {
+                        individual.getRepresentIndividual().set(i, swap);
+                    }
+                }
+            }
+        }
+    }
+
+
+    public Indiviual start(Data data) {
+        Population population;
+        population = new Population(data);
+
+        population.evaluatePopulation();
+
+        int best = findBestIndividual(population);
+        if(-1 == best) {
+            System.out.println(best);
         }
 
+        int gen = 0;
+        while( (gen < data.genMax()) && (population.getPopulation().get(best).evaluate() > data.ffXax()) ) {
+            Population newPopulation = selection(population,data);
+            System.out.println(newPopulation);
+            newPopulation = crossover(data,newPopulation);
+////          mutation(data,newPopulation);
+            newPopulation.evaluatePopulation();
+            best = findBestIndividual(newPopulation);
+            population = newPopulation;
+            gen++;
+        }
+        return population.getPopulation().get(best);
     }
 }

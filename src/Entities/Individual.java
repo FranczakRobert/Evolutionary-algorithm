@@ -3,11 +3,11 @@ package Entities;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Indiviual {
+public class Individual {
     private List<Integer> representIndividual;
     static int IndividualIndex;
 
-    public Indiviual(int hetmansCounter) {
+    public Individual(int hetmansCounter) {
         generateIndividual(hetmansCounter);
         IndividualIndex++;
     }
@@ -53,7 +53,7 @@ public class Indiviual {
 
     @Override
     public String toString() {
-        return " \n    Indiviual {\n" +
+        return " \n    Individual {\n" +
                 "     representIndividual=" + representIndividual +
                 "\n }";
     }

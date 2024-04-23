@@ -2,22 +2,22 @@ package Service;
 
 import DTO.Data;
 import DTO.RandomPoints;
-import Entities.Indiviual;
+import Entities.Individual;
 import Entities.Population;
 
 import java.util.*;
 
 public class Evolutionary {
     private int findBestIndividual(Population pop) {
-        List<Indiviual> population = pop.getPopulation();
+        List<Individual> population = pop.getPopulation();
         int best = Integer.MAX_VALUE;
         int bestIndividual = -1;
 
-        for (Indiviual indiviual : population) {
-            int diagonalAttack = indiviual.evaluate();
+        for (Individual individual : population) {
+            int diagonalAttack = individual.evaluate();
             if(best > diagonalAttack) {
                 best = diagonalAttack;
-                bestIndividual = population.indexOf(indiviual);
+                bestIndividual = population.indexOf(individual);
             }
         }
         return bestIndividual;
@@ -26,13 +26,13 @@ public class Evolutionary {
     private Population selection(Population pop, Data data) {
         Population newPopulation = new Population();
         int index = 0;
-        List<Indiviual> population = pop.getPopulation();
+        List<Individual> population = pop.getPopulation();
 
         while(index < data.pop()) {
             int randoma = (int) (Math.random() * data.n());
             int randomb = (int) (Math.random() * data.n());
-            Indiviual a = population.get(randoma);
-            Indiviual b = population.get(randomb);
+            Individual a = population.get(randoma);
+            Individual b = population.get(randomb);
 
             if(randoma == randomb) {
                 if(a.evaluate() <= b.evaluate()) {
@@ -51,15 +51,15 @@ public class Evolutionary {
         int i = 0;
         while (i < data.pop() - 2) {
             if(Math.random() <= data.pc()) {
-                Indiviual a = crossPopulation.getPopulation().get(i);
-                Indiviual b = crossPopulation.getPopulation().get(i + 1);
+                Individual a = crossPopulation.getPopulation().get(i);
+                Individual b = crossPopulation.getPopulation().get(i + 1);
                 cross(a, b,data);
             }
             i += 2;
         }
     }
 
-    private void cross(Indiviual a, Indiviual b, Data data){
+    private void cross(Individual a, Individual b, Data data){
         RandomPoints randomPoints = generateRandomStartStopPoints(data);
 
         List<Integer> mappingSectionA = new ArrayList<>(a.getRepresentIndividual().subList(randomPoints.randomPointFirst(),randomPoints.randomPointSec() + 1));
@@ -82,7 +82,7 @@ public class Evolutionary {
         }
     }
 
-    private void applyMapping(Indiviual individual, Map<Integer,Integer> mapping, int startIndex,int endIndex) {
+    private void applyMapping(Individual individual, Map<Integer,Integer> mapping, int startIndex, int endIndex) {
         for (int i = startIndex; i < endIndex; i++) {
             while (mapping.containsValue(individual.getRepresentIndividual().get(i))) {
                 for (Integer swap : mapping.keySet()) {
@@ -104,15 +104,15 @@ public class Evolutionary {
         }
     }
 
-    private void mutate(Indiviual indiviual,Data data) {
+    private void mutate(Individual individual, Data data) {
         RandomPoints randomPoints = generateRandomStartStopPoints(data);
         int tmp;
 
-        int a = indiviual.getRepresentIndividual().get(randomPoints.randomPointFirst());
-        int b = indiviual.getRepresentIndividual().get(randomPoints.randomPointSec());
+        int a = individual.getRepresentIndividual().get(randomPoints.randomPointFirst());
+        int b = individual.getRepresentIndividual().get(randomPoints.randomPointSec());
         tmp = a;
-        indiviual.getRepresentIndividual().set(randomPoints.randomPointFirst(),b);
-        indiviual.getRepresentIndividual().set(randomPoints.randomPointSec(),tmp);
+        individual.getRepresentIndividual().set(randomPoints.randomPointFirst(),b);
+        individual.getRepresentIndividual().set(randomPoints.randomPointSec(),tmp);
     }
 
     private RandomPoints generateRandomStartStopPoints(Data data) {
@@ -131,7 +131,7 @@ public class Evolutionary {
         return new RandomPoints(randomPointFirst,randomPointSec);
     }
 
-    public Indiviual start(Data data) {
+    public Individual start(Data data) {
         Population population;
 
         population = new Population(data);

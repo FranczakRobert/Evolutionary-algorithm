@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Population {
-    private List<Indiviual> population;
+    private List<Individual> population;
     private List<Integer> evaluatedPopulation;
     public Population() {
         population = new ArrayList<>();
@@ -19,13 +19,13 @@ public class Population {
         createPopulation(data);
     }
 
-    public List<Indiviual> getPopulation() {
+    public List<Individual> getPopulation() {
         return population;
     }
 
     public void createPopulation(Data data) {
         for(int i = 0; i < data.pop(); i++) {
-            population.add(new Indiviual(data.n()));
+            population.add(new Individual(data.n()));
         }
     }
 
@@ -34,8 +34,8 @@ public class Population {
     }
 
     public void evaluatePopulation() {
-        for(Indiviual indiviual : population) {
-            evaluatedPopulation.add(indiviual.evaluate());
+        for(Individual individual : population) {
+            evaluatedPopulation.add(individual.evaluate());
         }
     }
 

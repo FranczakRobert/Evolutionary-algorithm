@@ -6,43 +6,45 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Population {
-    private List<Individual> population;
-    private List<Integer> evaluatedPopulation;
+    private List<Individual> listofIndividuals;
+    private List<Integer> listOfAttacks;
+
     public Population() {
-        population = new ArrayList<>();
-        evaluatedPopulation = new ArrayList<>();
+        listofIndividuals = new ArrayList<>();
+        listOfAttacks = new ArrayList<>();
     }
 
     public Population(Data data) {
-        population = new ArrayList<>();
-        evaluatedPopulation = new ArrayList<>();
+        listofIndividuals = new ArrayList<>();
+        listOfAttacks = new ArrayList<>();
         createPopulation(data);
     }
 
-    public List<Individual> getPopulation() {
-        return population;
+    public List<Individual> getListofIndividuals() {
+        return listofIndividuals;
     }
 
     public void createPopulation(Data data) {
         for(int i = 0; i < data.pop(); i++) {
-            population.add(new Individual(data.n()));
+            listofIndividuals.add(new Individual(data.n()));
         }
     }
 
-    public List<Integer> getEvaluatedPopulation() {
-        return evaluatedPopulation;
+    public List<Integer> getListOfAttacks() {
+        return listOfAttacks;
     }
 
     public void evaluatePopulation() {
-        for(Individual individual : population) {
-            evaluatedPopulation.add(individual.evaluate());
+        listOfAttacks.clear();
+        for(Individual individual : listofIndividuals) {
+            listOfAttacks.add(individual.evaluate());
         }
     }
 
     @Override
     public String toString() {
         return "Population { \n" +
-                "  population X = " + population +
+                "  population X = " + listofIndividuals +
                 " } \n";
     }
 }

@@ -4,31 +4,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Individual {
-    private List<Integer> representIndividual;
+    private List<Integer> listOfHetmans;
     static int IndividualIndex;
+
 
     public Individual(int hetmansCounter) {
         generateIndividual(hetmansCounter);
         IndividualIndex++;
     }
 
-    public List<Integer> getRepresentIndividual() {
-        return representIndividual;
+    public List<Integer> getListOfHetmans() {
+        return listOfHetmans;
     }
 
-    public void setRepresentIndividual(List<Integer> representIndividual) {
-        this.representIndividual = representIndividual;
+    public void setListOfHetmans(List<Integer> listOfHetmans) {
+        this.listOfHetmans = listOfHetmans;
     }
 
     private void generateIndividual(int hetmansCounter){
-        representIndividual = new ArrayList<>();
+        listOfHetmans = new ArrayList<>();
 
-        while (representIndividual.size() != hetmansCounter) {
+        while (listOfHetmans.size() != hetmansCounter) {
             int random = (int) (1 + Math.random() * hetmansCounter);
-            if(representIndividual.contains(random)){
+            if(listOfHetmans.contains(random)){
                 continue;
             }
-            representIndividual.add(random);
+            listOfHetmans.add(random);
         }
     }
 
@@ -36,11 +37,11 @@ public class Individual {
     public int evaluate() {
         int diagonalAttack = 0;
 
-        for(int checkingHetman = 0; checkingHetman < representIndividual.size(); checkingHetman++) {
-            int checkingRowA = representIndividual.get(checkingHetman);
+        for(int checkingHetman = 0; checkingHetman < listOfHetmans.size(); checkingHetman++) {
+            int checkingRowA = listOfHetmans.get(checkingHetman);
 
-            for(int hetman = checkingHetman + 1; hetman < representIndividual.size(); hetman++) {
-                int checkingRowB = representIndividual.get(hetman);
+            for(int hetman = checkingHetman + 1; hetman < listOfHetmans.size(); hetman++) {
+                int checkingRowB = listOfHetmans.get(hetman);
 
                 if(Math.abs(checkingRowA - checkingRowB) == Math.abs(checkingHetman - hetman)) {
                     diagonalAttack++;
@@ -54,7 +55,7 @@ public class Individual {
     @Override
     public String toString() {
         return " \n    Individual {\n" +
-                "     representIndividual=" + representIndividual +
+                "     representIndividual=" + listOfHetmans +
                 "\n }";
     }
 }

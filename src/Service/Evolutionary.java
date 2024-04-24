@@ -8,40 +8,31 @@ import Entities.Population;
 import java.util.*;
 
 public class Evolutionary {
-    private int findBestIndividual(Population pop) {
-        List<Integer> population = pop.getEvaluatedPopulation();
-        int best = Integer.MAX_VALUE;
-        int bestIndividual = -1;
 
-        for (Integer individual : population) {
-            if(best > individual) {
-                best = individual;
-            }
-        }
-
-        bestIndividual = population.indexOf(best);
-        return bestIndividual;
+    private int findBestIndividual(Population population) {
+        int lowestNumberAttack = Collections.min(population.getListOfAttacks());
+        return population.getListOfAttacks().indexOf(lowestNumberAttack);
     }
 
     private Population selection(Population pop, Data data) {
         Population newPopulation = new Population();
-        int index = 0;
-        List<Individual> population = pop.getPopulation();
+        int addedIndividualsCounter = 0;
+        List<Individual> listofIndividuals = pop.getListofIndividuals();
 
-        while(index < data.pop()) {
-            int randoma = (int) (Math.random() * data.n());
-            int randomb = (int) (Math.random() * data.n());
-            Individual a = population.get(randoma);
-            Individual b = population.get(randomb);
+        while(addedIndividualsCounter < data.pop()) {
+            int randomIndexA = (int) (Math.random() * data.n());
+            int randomIndexB = (int) (Math.random() * data.n());
+            Individual individualA = listofIndividuals.get(randomIndexA);
+            Individual individualB = listofIndividuals.get(randomIndexB);
 
-            if(randoma != randomb) {
-                if(a.evaluate() <= b.evaluate()) {
-                    newPopulation.getPopulation().add(a);
+            if(randomIndexA != randomIndexB) {
+                if(individualA.evaluate() <= individualB.evaluate()) {
+                    newPopulation.getListofIndividuals().add(individualA);
                 }
                 else {
-                    newPopulation.getPopulation().add(b);
+                    newPopulation.getListofIndividuals().add(individualB);
                 }
-                index++;
+                addedIndividualsCounter++;
             }
         }
         return newPopulation;
@@ -51,43 +42,44 @@ public class Evolutionary {
         int i = 0;
         while (i < data.pop() - 2) {
             if(Math.random() <= data.pc()) {
-                Individual a = crossPopulation.getPopulation().get(i);
-                Individual b = crossPopulation.getPopulation().get(i + 1);
-                cross(a, b,data);
+                Individual individualA = crossPopulation.getListofIndividuals().get(i);
+                Individual individualB = crossPopulation.getListofIndividuals().get(i + 1);
+                cross(individualA, individualB,data);
             }
             i += 2;
         }
     }
 
-    private void cross(Individual a, Individual b, Data data){
+    private void cross(Individual individualA, Individual individualB, Data data){
         RandomPoints randomPoints = generateRandomStartStopPoints(data);
 
-        List<Integer> mappingSectionA = new ArrayList<>(a.getRepresentIndividual().subList(randomPoints.randomPointFirst(),randomPoints.randomPointSec() + 1));
-        List<Integer> mappingSectionB = new ArrayList<>(b.getRepresentIndividual().subList(randomPoints.randomPointFirst(),randomPoints.randomPointSec() + 1));
+        List<Integer> mappingMiddleSectionA = new ArrayList<>(individualA.getListOfHetmans().subList(randomPoints.randomPointFirst(),randomPoints.randomPointSec() + 1));
+        List<Integer> mappingMiddleSectionB = new ArrayList<>(individualB.getListOfHetmans().subList(randomPoints.randomPointFirst(),randomPoints.randomPointSec() + 1));
 
-        Map<Integer,Integer> mapForA = new HashMap<>();
-        Map<Integer,Integer> mapForB = new HashMap<>();
-        for (int i = 0; i < mappingSectionA.size(); i++) {
-            mapForA.put(mappingSectionA.get(i),mappingSectionB.get(i));
-            mapForB.put(mappingSectionB.get(i),mappingSectionA.get(i));
+        Map<Integer,Integer> mappedValuesForA = new HashMap<>();
+        Map<Integer,Integer> mappedValuesForB = new HashMap<>();
+
+        for (int value = 0; value < mappingMiddleSectionA.size(); value++) {
+            mappedValuesForA.put(mappingMiddleSectionA.get(value),mappingMiddleSectionB.get(value));
+            mappedValuesForB.put(mappingMiddleSectionB.get(value),mappingMiddleSectionA.get(value));
         }
-        applyMapping(a, mapForA, randomPoints.randomPointSec() + 1,a.getRepresentIndividual().size());
-        applyMapping(b, mapForB, randomPoints.randomPointSec() + 1,b.getRepresentIndividual().size());
-        applyMapping(a, mapForA, 0,randomPoints.randomPointFirst());
-        applyMapping(b, mapForB, 0,randomPoints.randomPointFirst());
+        applyMapping(individualA, mappedValuesForA, randomPoints.randomPointSec() + 1,individualA.getListOfHetmans().size());
+        applyMapping(individualB, mappedValuesForB, randomPoints.randomPointSec() + 1,individualB.getListOfHetmans().size());
+        applyMapping(individualA, mappedValuesForA, 0,randomPoints.randomPointFirst());
+        applyMapping(individualB, mappedValuesForB, 0,randomPoints.randomPointFirst());
 
         for(int index = randomPoints.randomPointFirst(); index <= randomPoints.randomPointSec();  index++) {
-            a.getRepresentIndividual().set(index,mappingSectionB.get(index - randomPoints.randomPointFirst()));
-            b.getRepresentIndividual().set(index,mappingSectionA.get(index - randomPoints.randomPointFirst()));
+            individualA.getListOfHetmans().set(index,mappingMiddleSectionB.get(index - randomPoints.randomPointFirst()));
+            individualB.getListOfHetmans().set(index,mappingMiddleSectionA.get(index - randomPoints.randomPointFirst()));
         }
     }
 
     private void applyMapping(Individual individual, Map<Integer,Integer> mapping, int startIndex, int endIndex) {
-        for (int i = startIndex; i < endIndex; i++) {
-            while (mapping.containsValue(individual.getRepresentIndividual().get(i))) {
-                for (Integer swap : mapping.keySet()) {
-                    if (individual.getRepresentIndividual().get(i) == (int)mapping.get(swap)) {
-                        individual.getRepresentIndividual().set(i, swap);
+        for (int hetmanIndex = startIndex; hetmanIndex < endIndex; hetmanIndex++) {
+            while (mapping.containsValue(individual.getListOfHetmans().get(hetmanIndex))) {
+                for (int key : mapping.keySet()) {
+                    if (individual.getListOfHetmans().get(hetmanIndex) == mapping.get(key)) {
+                        individual.getListOfHetmans().set(hetmanIndex, key);
                     }
                 }
             }
@@ -95,12 +87,12 @@ public class Evolutionary {
     }
 
     private void mutation(Population population, Data data) {
-        int i = 0;
-        while(i < data.pop()) {
+        int index = 0;
+        while(index < data.pop()) {
             if(Math.random() <= data.pm()) {
-                mutate(population.getPopulation().get(i),data);
+                mutate(population.getListofIndividuals().get(index),data);
             }
-            i+= 1;
+            index+= 1;
         }
     }
 
@@ -108,11 +100,11 @@ public class Evolutionary {
         RandomPoints randomPoints = generateRandomStartStopPoints(data);
         int tmp;
 
-        int a = individual.getRepresentIndividual().get(randomPoints.randomPointFirst());
-        int b = individual.getRepresentIndividual().get(randomPoints.randomPointSec());
-        tmp = a;
-        individual.getRepresentIndividual().set(randomPoints.randomPointFirst(),b);
-        individual.getRepresentIndividual().set(randomPoints.randomPointSec(),tmp);
+        int individualA = individual.getListOfHetmans().get(randomPoints.randomPointFirst());
+        int individualB = individual.getListOfHetmans().get(randomPoints.randomPointSec());
+        tmp = individualA;
+        individual.getListOfHetmans().set(randomPoints.randomPointFirst(),individualB);
+        individual.getListOfHetmans().set(randomPoints.randomPointSec(),tmp);
     }
 
     private RandomPoints generateRandomStartStopPoints(Data data) {
@@ -132,27 +124,26 @@ public class Evolutionary {
     }
 
     public double[] start(Data data) {
-        Population population;
-        List<Double> result = new ArrayList<>();
+        List<Double> resultForChart = new ArrayList<>();
 
-        population = new Population(data);
+        Population population = new Population(data);;
         population.evaluatePopulation();
 
-        int best = findBestIndividual(population);
+        int indexOfBestIndividual = findBestIndividual(population);
 
-        int gen = 0;
-        while( (gen < data.genMax()) && (population.getPopulation().get(best).evaluate() > data.ffXax()) ) {
+        int generationCounter = 0;
+        while( (generationCounter < data.genMax()) && (population.getListofIndividuals().get(indexOfBestIndividual).evaluate() > data.ffXax()) ) {
             Population newPopulation = selection(population,data);
             crossover(newPopulation,data);
             mutation(newPopulation,data);
             newPopulation.evaluatePopulation();
-            best = findBestIndividual(newPopulation);
+            indexOfBestIndividual = findBestIndividual(newPopulation);
             population = newPopulation;
-            gen++;
+            generationCounter++;
 
-            result.add((double)newPopulation.getPopulation().get(best).evaluate());
+            resultForChart.add((double)newPopulation.getListofIndividuals().get(indexOfBestIndividual).evaluate());
         }
-        return result.stream().mapToDouble(Double::doubleValue).toArray();
+        return resultForChart.stream().mapToDouble(Double::doubleValue).toArray();
 //        return population.getPopulation().get(best);
     }
 }

@@ -20,8 +20,9 @@ public class Evolutionary {
         List<Individual> listofIndividuals = pop.getListofIndividuals();
 
         while(Data.pop > addedIndividualsCounter) {
-            int randomIndexA = (int) (Math.random() * Data.n);
-            int randomIndexB = (int) (Math.random() * Data.n);
+            int randomIndexA = (int) (Math.random() * Data.pop);
+            int randomIndexB = (int) (Math.random() * Data.pop);
+
             Individual individualA = listofIndividuals.get(randomIndexA);
             Individual individualB = listofIndividuals.get(randomIndexB);
 
@@ -143,7 +144,7 @@ public class Evolutionary {
             population = newPopulation;
             generationCounter++;
 
-            resultForChart.add((double)newPopulation.getListofIndividuals().get(indexOfBestIndividual).evaluate());
+            resultForChart.add((double)Collections.min(newPopulation.getListOfAttacks()));
         }
         return resultForChart.stream().mapToDouble(Double::doubleValue).toArray();
 //        return population.getPopulation().get(best);

@@ -7,17 +7,14 @@ import java.util.List;
 
 public class Individual {
     private List<Integer> listOfHetmans;
-    static int IndividualIndex;
+
+    public Individual(int hetmansCounter) {
+        generateIndividual(hetmansCounter);
+    }
 
     public Individual(Individual individual) {
         this(Data.n);
         listOfHetmans = new ArrayList<>(individual.getListOfHetmans());
-
-    }
-
-    public Individual(int hetmansCounter) {
-        generateIndividual(hetmansCounter);
-        IndividualIndex++;
     }
 
     public List<Integer> getListOfHetmans() {

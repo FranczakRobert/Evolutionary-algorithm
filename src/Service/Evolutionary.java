@@ -9,17 +9,17 @@ import java.util.*;
 
 public class Evolutionary {
     private int findBestIndividual(Population pop) {
-        List<Individual> population = pop.getPopulation();
+        List<Integer> population = pop.getEvaluatedPopulation();
         int best = Integer.MAX_VALUE;
         int bestIndividual = -1;
 
-        for (Individual individual : population) {
-            int diagonalAttack = individual.evaluate();
-            if(best > diagonalAttack) {
-                best = diagonalAttack;
-                bestIndividual = population.indexOf(individual);
+        for (Integer individual : population) {
+            if(best > individual) {
+                best = individual;
             }
         }
+
+        bestIndividual = population.indexOf(best);
         return bestIndividual;
     }
 
@@ -34,7 +34,7 @@ public class Evolutionary {
             Individual a = population.get(randoma);
             Individual b = population.get(randomb);
 
-            if(randoma == randomb) {
+            if(randoma != randomb) {
                 if(a.evaluate() <= b.evaluate()) {
                     newPopulation.getPopulation().add(a);
                 }
@@ -99,8 +99,8 @@ public class Evolutionary {
         while(i < data.pop()) {
             if(Math.random() <= data.pm()) {
                 mutate(population.getPopulation().get(i),data);
-                i+= 1;
             }
+            i+= 1;
         }
     }
 
@@ -131,8 +131,9 @@ public class Evolutionary {
         return new RandomPoints(randomPointFirst,randomPointSec);
     }
 
-    public Individual start(Data data) {
+    public double[] start(Data data) {
         Population population;
+        List<Double> result = new ArrayList<>();
 
         population = new Population(data);
         population.evaluatePopulation();
@@ -142,14 +143,16 @@ public class Evolutionary {
         int gen = 0;
         while( (gen < data.genMax()) && (population.getPopulation().get(best).evaluate() > data.ffXax()) ) {
             Population newPopulation = selection(population,data);
-//            System.out.println(newPopulation);
             crossover(newPopulation,data);
             mutation(newPopulation,data);
             newPopulation.evaluatePopulation();
             best = findBestIndividual(newPopulation);
             population = newPopulation;
             gen++;
+
+            result.add((double)newPopulation.getPopulation().get(best).evaluate());
         }
-        return population.getPopulation().get(best);
+        return result.stream().mapToDouble(Double::doubleValue).toArray();
+//        return population.getPopulation().get(best);
     }
 }

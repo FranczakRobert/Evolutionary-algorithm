@@ -1,13 +1,22 @@
 import DTO.Data;
-import Entities.Individual;
 import Service.Evolutionary;
+import Utils.ChessboardPlotter;
+
+import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
-        Data data = new Data(14,100,1000,0.7,0.2,0);
+        Data data = new Data(8,10,100,0.7,0.2,0);
         Evolutionary evolutionary = new Evolutionary();
 
-        Individual result = evolutionary.start(data);
-        System.out.println(result);
+        double[] results = evolutionary.start(data);
+//        System.out.println(result);
+        ChessboardPlotter chessboardPlotter = new ChessboardPlotter();
+
+        try {
+            chessboardPlotter.start(results);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

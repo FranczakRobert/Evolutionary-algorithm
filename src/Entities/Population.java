@@ -14,19 +14,13 @@ public class Population {
         listOfAttacks = new ArrayList<>();
     }
 
-    public Population(Data data) {
-        listofIndividuals = new ArrayList<>();
-        listOfAttacks = new ArrayList<>();
-        createPopulation(data);
-    }
-
     public List<Individual> getListofIndividuals() {
         return listofIndividuals;
     }
 
-    public void createPopulation(Data data) {
-        for(int i = 0; i < data.pop(); i++) {
-            listofIndividuals.add(new Individual(data.n()));
+    public void createPopulation() {
+        for(int i = 0; Data.pop > i; i++) {
+            listofIndividuals.add(new Individual(Data.n));
         }
     }
 

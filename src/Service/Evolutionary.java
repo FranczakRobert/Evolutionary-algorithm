@@ -14,14 +14,14 @@ public class Evolutionary {
         return population.getListOfAttacks().indexOf(lowestNumberAttack);
     }
 
-    private Population selection(Population pop, Data data) {
+    private Population selection(Population pop) {
         Population newPopulation = new Population();
         int addedIndividualsCounter = 0;
         List<Individual> listofIndividuals = pop.getListofIndividuals();
 
-        while(addedIndividualsCounter < data.pop()) {
-            int randomIndexA = (int) (Math.random() * data.n());
-            int randomIndexB = (int) (Math.random() * data.n());
+        while(Data.pop > addedIndividualsCounter) {
+            int randomIndexA = (int) (Math.random() * Data.n);
+            int randomIndexB = (int) (Math.random() * Data.n);
             Individual individualA = listofIndividuals.get(randomIndexA);
             Individual individualB = listofIndividuals.get(randomIndexB);
 
@@ -38,20 +38,20 @@ public class Evolutionary {
         return newPopulation;
     }
 
-    private void crossover(Population crossPopulation,Data data){
+    private void crossover(Population crossPopulation){
         int i = 0;
-        while (i < data.pop() - 2) {
-            if(Math.random() <= data.pc()) {
+        while (Data.pop - 2 > i) {
+            if(Data.pc >= Math.random()) {
                 Individual individualA = crossPopulation.getListofIndividuals().get(i);
                 Individual individualB = crossPopulation.getListofIndividuals().get(i + 1);
-                cross(individualA, individualB,data);
+                cross(individualA, individualB);
             }
             i += 2;
         }
     }
 
-    private void cross(Individual individualA, Individual individualB, Data data){
-        RandomPoints randomPoints = generateRandomStartStopPoints(data);
+    private void cross(Individual individualA, Individual individualB){
+        RandomPoints randomPoints = generateRandomStartStopPoints();
 
         List<Integer> mappingMiddleSectionA = new ArrayList<>(individualA.getListOfHetmans().subList(randomPoints.randomPointFirst(),randomPoints.randomPointSec() + 1));
         List<Integer> mappingMiddleSectionB = new ArrayList<>(individualB.getListOfHetmans().subList(randomPoints.randomPointFirst(),randomPoints.randomPointSec() + 1));
@@ -86,18 +86,18 @@ public class Evolutionary {
         }
     }
 
-    private void mutation(Population population, Data data) {
+    private void mutation(Population population) {
         int index = 0;
-        while(index < data.pop()) {
-            if(Math.random() <= data.pm()) {
-                mutate(population.getListofIndividuals().get(index),data);
+        while(Data.pop > index) {
+            if(Data.pm >= Math.random()) {
+                mutate(population.getListofIndividuals().get(index));
             }
             index+= 1;
         }
     }
 
-    private void mutate(Individual individual, Data data) {
-        RandomPoints randomPoints = generateRandomStartStopPoints(data);
+    private void mutate(Individual individual) {
+        RandomPoints randomPoints = generateRandomStartStopPoints();
         int tmp;
 
         int individualA = individual.getListOfHetmans().get(randomPoints.randomPointFirst());
@@ -107,12 +107,12 @@ public class Evolutionary {
         individual.getListOfHetmans().set(randomPoints.randomPointSec(),tmp);
     }
 
-    private RandomPoints generateRandomStartStopPoints(Data data) {
-        int randomPointFirst = (int) (Math.random() * data.n());
-        int randomPointSec   = (int) (Math.random() * data.n());
+    private RandomPoints generateRandomStartStopPoints() {
+        int randomPointFirst = (int) (Math.random() * Data.n);
+        int randomPointSec   = (int) (Math.random() * Data.n);
 
         while(randomPointFirst == randomPointSec)
-            randomPointSec   = (int) (Math.random() * data.n());
+            randomPointSec   = (int) (Math.random() * Data.n);
 
         if(randomPointFirst > randomPointSec) {
             int tmp = randomPointSec;
@@ -123,19 +123,21 @@ public class Evolutionary {
         return new RandomPoints(randomPointFirst,randomPointSec);
     }
 
-    public double[] start(Data data) {
+    public double[] start() {
         List<Double> resultForChart = new ArrayList<>();
 
-        Population population = new Population(data);;
+        Population population = new Population();;
+        population.createPopulation();
         population.evaluatePopulation();
+
 
         int indexOfBestIndividual = findBestIndividual(population);
 
         int generationCounter = 0;
-        while( (generationCounter < data.genMax()) && (population.getListofIndividuals().get(indexOfBestIndividual).evaluate() > data.ffXax()) ) {
-            Population newPopulation = selection(population,data);
-            crossover(newPopulation,data);
-            mutation(newPopulation,data);
+        while( (Data.genMax > generationCounter) && (Data.ffXax < population.getListofIndividuals().get(indexOfBestIndividual).evaluate()) ) {
+            Population newPopulation = selection(population);
+            crossover(newPopulation);
+            mutation(newPopulation);
             newPopulation.evaluatePopulation();
             indexOfBestIndividual = findBestIndividual(newPopulation);
             population = newPopulation;

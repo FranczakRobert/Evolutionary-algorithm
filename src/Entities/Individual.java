@@ -1,5 +1,7 @@
 package Entities;
 
+import DTO.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +9,11 @@ public class Individual {
     private List<Integer> listOfHetmans;
     static int IndividualIndex;
 
+    public Individual(Individual individual) {
+        this(Data.n);
+        listOfHetmans = new ArrayList<>(individual.getListOfHetmans());
+
+    }
 
     public Individual(int hetmansCounter) {
         generateIndividual(hetmansCounter);

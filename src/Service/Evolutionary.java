@@ -28,10 +28,10 @@ public class Evolutionary {
 
             if(randomIndexA != randomIndexB) {
                 if(individualA.evaluate() <= individualB.evaluate()) {
-                    newPopulation.getListofIndividuals().add(individualA);
+                    newPopulation.getListofIndividuals().add(new Individual(individualA));
                 }
                 else {
-                    newPopulation.getListofIndividuals().add(individualB);
+                    newPopulation.getListofIndividuals().add(new Individual(individualB));
                 }
                 addedIndividualsCounter++;
             }
@@ -41,7 +41,7 @@ public class Evolutionary {
 
     private void crossover(Population crossPopulation){
         int i = 0;
-        while (Data.pop - 2 > i) {
+        while (Data.pop - 2 >= i) {
             if(Data.pc >= Math.random()) {
                 Individual individualA = crossPopulation.getListofIndividuals().get(i);
                 Individual individualB = crossPopulation.getListofIndividuals().get(i + 1);
@@ -131,20 +131,16 @@ public class Evolutionary {
         population.createPopulation();
         population.evaluatePopulation();
 
-
-        int indexOfBestIndividual = findBestIndividual(population);
-
         int generationCounter = 0;
-        while( (Data.genMax > generationCounter) && (Data.ffXax < population.getListofIndividuals().get(indexOfBestIndividual).evaluate()) ) {
+        while( (Data.genMax > generationCounter) && (Data.ffXax < Collections.min(population.getListOfAttacks())) ) {
             Population newPopulation = selection(population);
             crossover(newPopulation);
             mutation(newPopulation);
             newPopulation.evaluatePopulation();
-            indexOfBestIndividual = findBestIndividual(newPopulation);
             population = newPopulation;
             generationCounter++;
 
-            resultForChart.add((double)Collections.min(newPopulation.getListOfAttacks()));
+            resultForChart.add((double)Collections.min(population.getListOfAttacks()));
         }
         return resultForChart.stream().mapToDouble(Double::doubleValue).toArray();
 //        return population.getPopulation().get(best);

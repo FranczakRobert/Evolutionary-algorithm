@@ -4,6 +4,7 @@ import DTO.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalDouble;
 
 public class Population {
     private List<Individual> listofIndividuals;
@@ -28,11 +29,18 @@ public class Population {
         return listOfAttacks;
     }
 
-    public void evaluatePopulation() {
+    public double evaluatePopulation() {
         listOfAttacks.clear();
         for(Individual individual : listofIndividuals) {
             listOfAttacks.add(individual.evaluate());
         }
+
+        OptionalDouble avarage = listOfAttacks
+                .stream()
+                .mapToDouble(a -> a).
+                average();
+
+        return avarage.isPresent() ? avarage.getAsDouble() : 0;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package Service;
 
 import DTO.Data;
+import DTO.GraphData;
 import DTO.RandomPoints;
 import Entities.Individual;
 import Entities.Population;
@@ -124,8 +125,9 @@ public class Evolutionary {
         return new RandomPoints(randomPointFirst,randomPointSec);
     }
 
-    public double[] start() {
-        List<Double> resultForChart = new ArrayList<>();
+    public GraphData start() {
+        List<Double> listOfBestEvaluatedValueFromPop = new ArrayList<>();
+        List<Double> listOfAvarageEvaluatedValueFromPop = new ArrayList<>();
 
         Population population = new Population();;
         population.createPopulation();
@@ -136,13 +138,13 @@ public class Evolutionary {
             Population newPopulation = selection(population);
             crossover(newPopulation);
             mutation(newPopulation);
-            newPopulation.evaluatePopulation();
+            double avarageEvaluatedValue =  newPopulation.evaluatePopulation();
             population = newPopulation;
             generationCounter++;
 
-            resultForChart.add((double)Collections.min(population.getListOfAttacks()));
+            listOfBestEvaluatedValueFromPop.add((double)Collections.min(population.getListOfAttacks()));
+            listOfAvarageEvaluatedValueFromPop.add(avarageEvaluatedValue);
         }
-        return resultForChart.stream().mapToDouble(Double::doubleValue).toArray();
-//        return population.getPopulation().get(best);
+        return new GraphData(listOfBestEvaluatedValueFromPop,listOfAvarageEvaluatedValueFromPop);
     }
 }

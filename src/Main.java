@@ -1,3 +1,4 @@
+import DTO.GraphData;
 import Service.Evolutionary;
 import Utils.ChessboardPlotter;
 
@@ -7,7 +8,8 @@ public class Main {
     public static void main(String[] args) {
         Evolutionary evolutionary = new Evolutionary();
 
-        double[] results = evolutionary.start();
+        GraphData results = evolutionary.start();
+
         ChessboardPlotter chessboardPlotter = new ChessboardPlotter();
 
         try {

@@ -145,6 +145,15 @@ public class Evolutionary {
             listOfBestEvaluatedValueFromPop.add((double)Collections.min(population.getListOfAttacks()));
             listOfAvarageEvaluatedValueFromPop.add(avarageEvaluatedValue);
         }
-        return new GraphData(listOfBestEvaluatedValueFromPop,listOfAvarageEvaluatedValueFromPop);
+        int bestIdividualIndex = findBestIndividual(population);
+        System.out.println(population.getListofIndividuals().get(bestIdividualIndex));
+
+        if(0 < generationCounter)
+            return new GraphData(listOfBestEvaluatedValueFromPop,listOfAvarageEvaluatedValueFromPop);
+        else {
+            System.out.println("ROZWIĄZANIE ZNALEZIONO W PIERWSZEJ GENERACJI");
+            return null;
+        }
+
     }
 }

@@ -10,12 +10,14 @@ public class Main {
 
         GraphData results = evolutionary.start();
 
-        ChessboardPlotter chessboardPlotter = new ChessboardPlotter();
 
-        try {
-            chessboardPlotter.start(results);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if(null != results) {
+            ChessboardPlotter chessboardPlotter = new ChessboardPlotter();
+                try {
+                    chessboardPlotter.start(results);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
         }
     }
 }
